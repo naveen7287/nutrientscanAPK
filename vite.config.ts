@@ -13,8 +13,10 @@ export default defineConfig(({ mode }) => {
       // ✅ Gemini API Key
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
 
-      // ✅ Backend URL (FIXED)
-      'import.meta.env.VITE_APP_URL': JSON.stringify(env.VITE_APP_URL),
+      // ✅ Backend URL (SAFE VERSION)
+      'import.meta.env.VITE_APP_URL': JSON.stringify(
+        env.VITE_APP_URL || process.env.APP_URL || ''
+      ),
     },
 
     resolve: {
