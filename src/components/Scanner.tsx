@@ -130,30 +130,54 @@ export default function Scanner({ profile, onLogAdded }: ScannerProps) {
   };
 
   const handleConfirm = async () => {
-    if (!result) return;
-    
-    const logData = {
-      food_name: result.food_name,
-      ingredients: manualIngredients,
-      nutrition: result.nutrition,
-      type: sourceType
-    };
+  if (!result) return;
 
-    const baseUrl = import.meta.env.VITE_APP_URL || '';
-    try {
-      const res = await fetch(`${baseUrl}/api/logs`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(logData)
-      });
-      const newLog = await res.json();
-      onLogAdded(newLog);
-      reset();
-    } catch (error) {
-      console.error('Error logging meal:', error);
-    }
+  const logData = {
+    food_name: result.food_name,
+    ingredients: manualIngredients,
+    nutrition: result.nutrition,
+    type: sourceType
   };
 
+  const baseUrl = import.meta.env.VITE_APP_URL || '';
+
+  if (!baseUrl) {
+    alert("Backend URL not configured ❌");
+    return;
+  }
+
+  console.log("API URL:", baseUrl);
+  console.log("Sending data:", logData);
+
+  try {
+    const res = await fetch(`${baseUrl}/api/logs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(logData),
+    });
+
+    console.log("Response status:", res.status);
+
+    if (!res.ok) {
+      throw new Error("Failed to save data");
+    }
+
+    const newLog = await res.json();
+    console.log("Saved:", newLog);
+
+    onLogAdded(newLog);
+    reset();
+
+    alert("Saved successfully ✅");
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Failed to save ❌");
+  }
+};
+  
   const reset = () => {
     setSourceType(null);
     setImage(null);
