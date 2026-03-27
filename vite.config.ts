@@ -4,24 +4,22 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
+  const env = loadEnv(mode, process.cwd(), '');
 
   return {
     plugins: [react(), tailwindcss()],
 
     define: {
-      // ✅ Gemini API Key
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      // 🔑 Gemini API Key
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
 
-      // ✅ Backend URL (SAFE VERSION)
-      'import.meta.env.VITE_APP_URL': JSON.stringify(
-        env.VITE_APP_URL || process.env.APP_URL || ''
-      ),
+      // 🌐 Backend API URL (IMPORTANT FIX)
+      'import.meta.env.VITE_APP_URL': JSON.stringify(env.VITE_APP_URL || ''),
     },
 
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, './'),
       },
     },
 
