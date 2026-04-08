@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  User, Save, Scale, Ruler, Calendar, Activity, Heart,
-  ChevronRight, Info
-} from 'lucide-react';
-import { motion } from 'motion/react';
+import { Save, Activity } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface ProfileProps {
@@ -12,6 +8,7 @@ interface ProfileProps {
 }
 
 export default function Profile({ profile, onUpdate }: ProfileProps) {
+
   const [formData, setFormData] = useState<Partial<UserProfile>>(profile || {
     name: '',
     age: 25,
@@ -25,7 +22,7 @@ export default function Profile({ profile, onUpdate }: ProfileProps) {
 
   const [saving, setSaving] = useState(false);
 
-  // ✅ FIXED SAVE FUNCTION
+  // ✅ FULL FIXED FUNCTION
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -43,119 +40,115 @@ export default function Profile({ profile, onUpdate }: ProfileProps) {
 
       const res = await fetch(`${baseUrl}/api/profile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(formData)
       });
-
-      console.log("Response status:", res.status);
 
       if (!res.ok) {
         throw new Error("Failed to save profile");
       }
 
-      const updatedProfile = await res.json();
-      console.log("Saved Profile:", updatedProfile);
+      const data = await res.json();
+      console.log("Saved profile:", data);
 
-      onUpdate(updatedProfile);
+      // ✅ IMPORTANT FIX (NO CRASH)
+      onUpdate(formData as UserProfile);
 
       alert("Profile saved successfully ✅");
 
     } catch (error) {
-      console.error('Error saving profile:', error);
-      alert("Failed to save profile ❌");
+      console.error("Save Error:", error);
+      alert("Error saving profile ❌");
     } finally {
       setSaving(false);
     }
   };
 
-  const activityOptions = [
-    { id: 'sedentary', label: 'Sedentary', desc: 'Little to no exercise' },
-    { id: 'light', label: 'Light', desc: '1-3 days/week' },
-    { id: 'moderate', label: 'Moderate', desc: '3-5 days/week' },
-    { id: 'active', label: 'Active', desc: '6-7 days/week' },
-    { id: 'very_active', label: 'Very Active', desc: 'Hard exercise 2x/day' },
-  ];
-
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Health Profile</h1>
-        <p className="text-gray-500">We use this information to calculate your personalized nutrition targets.</p>
-      </div>
+    <div className="max-w-xl mx-auto p-4">
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <h1 className="text-2xl font-bold mb-4">Profile</h1>
 
-        {/* Basic Info */}
-        <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-6">
-          <h3 className="font-bold text-lg">Basic Information</h3>
+      <form onSubmit={handleSubmit} className="space-y-4">
 
-          <input
-            type="text"
-            placeholder="Name"
-            value={formData.name}
-            onChange={e => setFormData({ ...formData, name: e.target.value })}
-            className="w-full p-3 rounded-xl bg-gray-50"
-          />
+        <input
+          type="text"
+          placeholder="Name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className="w-full p-3 rounded bg-gray-100"
+        />
 
-          <input
-            type="number"
-            placeholder="Age"
-            value={formData.age}
-            onChange={e => setFormData({ ...formData, age: parseInt(e.target.value) })}
-            className="w-full p-3 rounded-xl bg-gray-50"
-          />
-        </div>
+        <input
+          type="number"
+          placeholder="Age"
+          value={formData.age}
+          onChange={(e) => setFormData({ ...formData, age: Number(e.target.value) })}
+          className="w-full p-3 rounded bg-gray-100"
+        />
 
-        {/* Stats */}
-        <div className="bg-white rounded-[2rem] p-8 space-y-4">
-          <input
-            type="number"
-            placeholder="Height"
-            value={formData.height}
-            onChange={e => setFormData({ ...formData, height: parseInt(e.target.value) })}
-            className="w-full p-3 rounded-xl bg-gray-50"
-          />
+        <input
+          type="number"
+          placeholder="Height (cm)"
+          value={formData.height}
+          onChange={(e) => setFormData({ ...formData, height: Number(e.target.value) })}
+          className="w-full p-3 rounded bg-gray-100"
+        />
 
-          <input
-            type="number"
-            placeholder="Weight"
-            value={formData.weight}
-            onChange={e => setFormData({ ...formData, weight: parseInt(e.target.value) })}
-            className="w-full p-3 rounded-xl bg-gray-50"
-          />
-        </div>
+        <input
+          type="number"
+          placeholder="Weight (kg)"
+          value={formData.weight}
+          onChange={(e) => setFormData({ ...formData, weight: Number(e.target.value) })}
+          className="w-full p-3 rounded bg-gray-100"
+        />
 
-        {/* Activity */}
-        <div className="bg-white rounded-[2rem] p-8 space-y-3">
-          {activityOptions.map(opt => (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => setFormData({ ...formData, activityLevel: opt.id as any })}
-              className={`p-3 rounded-xl w-full ${
-                formData.activityLevel === opt.id ? "bg-green-500 text-white" : "bg-gray-100"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        <select
+          value={formData.gender}
+          onChange={(e) => setFormData({ ...formData, gender: e.target.value as any })}
+          className="w-full p-3 rounded bg-gray-100"
+        >
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
 
-        {/* Health */}
+        <select
+          value={formData.activityLevel}
+          onChange={(e) => setFormData({ ...formData, activityLevel: e.target.value as any })}
+          className="w-full p-3 rounded bg-gray-100"
+        >
+          <option value="sedentary">Sedentary</option>
+          <option value="light">Light</option>
+          <option value="moderate">Moderate</option>
+          <option value="active">Active</option>
+          <option value="very_active">Very Active</option>
+        </select>
+
         <textarea
           placeholder="Health Issues"
           value={formData.healthIssues}
-          onChange={e => setFormData({ ...formData, healthIssues: e.target.value })}
-          className="w-full p-3 rounded-xl bg-gray-50"
+          onChange={(e) => setFormData({ ...formData, healthIssues: e.target.value })}
+          className="w-full p-3 rounded bg-gray-100"
         />
 
-        {/* SAVE BUTTON */}
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-green-500 text-white py-4 rounded-xl"
+          className="w-full bg-green-500 text-white py-3 rounded flex items-center justify-center gap-2"
         >
-          {saving ? "Saving..." : "Save Changes & Calculate Targets"}
+          {saving ? (
+            <>
+              <Activity className="animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save />
+              Save Changes
+            </>
+          )}
         </button>
 
       </form>
