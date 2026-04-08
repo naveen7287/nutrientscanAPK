@@ -159,7 +159,7 @@ export default function App() {
               <ManualEntry onLogAdded={handleLogAdded} />
             )}
             {activeTab === 'profile' && (
-              <Profile profile={profile} onUpdate={handleProfileUpdate} />
+              <Profile  />
             )}
           </motion.div>
         </AnimatePresence>
